@@ -11,6 +11,10 @@ void zinc_tint(zinc_image *image, float const *colors) {
     v[1] *= colors[1];
     v[2] *= colors[2];
 
+    v[0] > 1.0f ? v[0] = 1.0f : 0;
+    v[1] > 1.0f ? v[1] = 1.0f : 0;
+    v[2] > 1.0f ? v[2] = 1.0f : 0;
+
     zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
     p += image->color_channels;
   }
@@ -26,6 +30,10 @@ void zinc_tint_equal(zinc_image *image, float factor) {
     v[0] *= factor;
     v[1] *= factor;
     v[2] *= factor;
+
+    v[0] > 1.0f ? v[0] = 1.0f : 0;
+    v[1] > 1.0f ? v[1] = 1.0f : 0;
+    v[2] > 1.0f ? v[2] = 1.0f : 0;
 
     zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
     p += image->color_channels;
