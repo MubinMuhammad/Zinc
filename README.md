@@ -1,1 +1,1 @@
-![Alt text](readme_res/logo.png)
+![Image](readme_res/logo.png)
