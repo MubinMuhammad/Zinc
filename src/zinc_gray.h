@@ -2,7 +2,6 @@
 #define ZINC_GRAY_H
 
 #include "zinc_types.h"
-#include "zinc_vec.h"
 
 #include <stdlib.h>
 

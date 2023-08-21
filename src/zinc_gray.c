@@ -1,6 +1,5 @@
 #include "zinc_gray.h"
 #include "zinc_types.h"
-#include "zinc_vec.h"
 
 #include <stdio.h>
 

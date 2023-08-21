@@ -40,6 +40,11 @@ typedef struct zinc_image {
 
 } zinc_image;
 
-typedef int zinc_arr2[2];
+typedef float     zinc_vec2[2];
+typedef float     zinc_vec3[3];
+typedef float     zinc_vec4[4];
+
+// 'unc' stands for 'unit change'
+void zinc_vec4_unc(zinc_image_unit u, zinc_image i, zinc_vec4 v, uint32_t p); 
 
 #endif
