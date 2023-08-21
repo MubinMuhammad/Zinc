@@ -1,6 +1,5 @@
 <p align="center">
-  <img src="https://github.com/MubinMuhammad/Zinc/blob/master/readme_res/zinc_logo.png?raw=true" 
+  <img src="https://github.com/MubinMuhammad/Zinc/blob/master/readme_res/logo.png?raw=true" 
   alt="Zinc Logo" 
-  width=720
-  height=250/> 
+  width=500 /> 
 </p>
