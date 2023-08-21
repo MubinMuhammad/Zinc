@@ -1,1 +1,1 @@
-![Image](readme_res/logo.png)
+![Image](readme_res/zinc_logo.png)
