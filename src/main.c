@@ -25,10 +25,14 @@ int main(int argc, char *argv[]) {
         image = zinc_image_load(argv[i], strlen(argv[i]));
         break;
       }
+      else if (zinc_image_option_ok("--help", "-h", argv[i])) {
+        printf("%s", zinc_help_text);
+        return 1;
+      }
     }
 
     if (!image_path_ok) {
-      printf("[error]: no image provided!");
+      printf("[error]: no image provided!\n");
       return 1;
     }
 
@@ -42,6 +46,8 @@ int main(int argc, char *argv[]) {
         zinc_gray_lumin(&image);
       if (zinc_image_option_ok("--gray-light",  "-gli", argv[i]))
         zinc_gray_light(&image);
+      if (zinc_image_option_ok("--help", "-h", argv[i]))
+        printf("%s", zinc_help_text);
     }
     zinc_image_write(image, "ZincImage.jpg", 100);
     zinc_image_free(image);
