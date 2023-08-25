@@ -9,15 +9,13 @@ Well, Zinc is an image processor, written in C. It supports:
 - GrayScale Avarage
 - GrayScale Luminosity 
 - GrayScale Lightness
-
 - Brightness adjustment
 - Tinting
 - Inverting colors
-
 - Cropping without changing the resolution
 - Cropping with changing the resolution
 
-more things will be added soon like: blur, sharpening, edge-detection etc.
+More things will be added soon like: blur, sharpening, edge-detection etc. As it's under the MIT License, you can see the algorithms by yourself. It might be help full is just getting started with Image Processing.
 
 ## Building
 If you are using Windows you do have to use mingw32 or mingw64.
