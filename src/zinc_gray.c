@@ -22,27 +22,6 @@ void zinc_gray(zinc_image *image) {
   }
 }
 
-void zinc_gray_correc(zinc_image *image) {
-  uint32_t  p = 0;
-  float     y;
-  zinc_vec4 v;
-
-  ZINC_PER_PIXEL_LOOP(image->width, image->height) {
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
-
-    y = (v[0] * 0.30 + 
-         v[1] * 0.59 + 
-         v[2] * 0.11 ) / 3;
-
-    v[0] = y;
-    v[1] = y;
-    v[2] = y;
-
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
-    p += image->color_channels;
-  }
-}
-
 void zinc_gray_lumin(zinc_image *image) {
   uint32_t  p = 0;
   float     y;

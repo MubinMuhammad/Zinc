@@ -80,7 +80,7 @@ int zinc_image_path_ok(const char *path, int path_size) {
   ? 1 : 0;
 }
 
-int zinc_image_option_ok(const char *s1, const char *s2, const char *c) {
+int zinc_image_option_check(const char *s1, const char *s2, const char *c) {
   return 
   strcmp(s1, c) == 0 ||
   strcmp(s2, c) == 0 

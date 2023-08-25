@@ -6,15 +6,22 @@
 
 ## What is it?
 Well, Zinc is an image processor, written in C. It supports:
-- 4 types of grayscale conversion.
-- brightness adjustment
-- tinting
-- inverting colors
+- GrayScale Avarage
+- GrayScale Luminosity 
+- GrayScale Lightness
+
+- Brightness adjustment
+- Tinting
+- Inverting colors
+
+- Cropping without changing the resolution
+- Cropping with changing the resolution
 
 more things will be added soon like: blur, sharpening, edge-detection etc.
 
 ## Building
-Go to the project directory. And then run this command in your terminal or command prompt (you might have to open up cmd in the file explorer in Windows for easier access):
+If you are using Windows you do have to use mingw32 or mingw64.
+Go to the project's root directory. And then run the command below in a terminal(cmd for Windows):
 ```bash
 gcc src/*.c -o zinc -lm
 ```
@@ -33,37 +40,34 @@ Pattern:
 
 Note:
   You have to give the parameters after function call.
-
-  You neigther have to put <> brackets nor commas when
-  when <r,g,b> or <x,y> is specified. Just put values
-  and spaces between the parameters.
-  Example: 124 23 53 (r,g,b example)
-           425 645   (x,y example).
+  You neigther have to put <> brackets nor commas when <r,g,b> or <x,y> is specified. Just put values and spaces between the parameters.
+    Example: 124 23 53 (r,g,b example)
+             425 645   (x,y example).
+  Lastly we use factors instead of percentages. As it's more accurate. Factors range from 0.0 to 1.0
 
 Options:
-  --gray                       turn an image gray.
-
-  --gray-correc                as humans don't perceive colors equally
-                               so, it is a more accurate version of gray.
-
-  --gray-lumin                 turn the image gray with luminosity.
-
-  --gray-light                 turn the image gray with min,max values.
-
-  --tint <r,g,b>               tint the image with the <r,g,b> values.
-
-  --brightness <percentage>    change the brightness depending on the
-                               percentage.
-
+  --version                                    check the version of zinc.
+  --help                                       show this help message.
+  --gray                                       turn an image gray.
+  --gray-lumin                                 turn the image gray with rgb values that fits human eyes.
+  --gray-light                                 turn the image gray with min,max values.
+  --tint <r,g,b>                               tint the image with the <r,g,b> values.
+  --brightness <factor>                        change the brightness depending on the percentage.
+  --invert                                     invert the colors of the image.
+  --cropwctr <x1,y1> <x2,y2> <r,g,b>           crop the image without changing the resolution. x1,y1 = top left coordinate. x2,y2 = bottom right coordinate. r,g,b = color for the uncropped areas.
+  --cropctr <x1,y1> <x2,y2>                    crop the image and change the resolution. x1,y1 = top left coordinate. x2,y2 = bottom right coordinate.  
   more soon...
 
 Short forms:
+  --version        ->     -v
+  --help           ->     -h
   --gray           ->     -g
-  --gray-correc    ->     -gc
-  --gray-lumin     ->     -glu
+  --gray-lumin     ->     -gl
   --gray-light     ->     -gli
   --tint           ->     -ti
   --brightness     ->     -br
-
+  --invert         ->     -in
+  --cropwctr       ->     -cwctr
+  --cropctr        ->     -cctr
   more soon...
 ```

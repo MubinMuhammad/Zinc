@@ -6,7 +6,6 @@
 #include <stdlib.h>
 
 void zinc_gray(zinc_image *image);
-void zinc_gray_correc(zinc_image *image);
 void zinc_gray_light(zinc_image *image);
 void zinc_gray_lumin(zinc_image *image);
 

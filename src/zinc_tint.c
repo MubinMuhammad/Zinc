@@ -1,6 +1,6 @@
 #include "zinc_tint.h"
 
-void zinc_tint(zinc_image *image, float const *colors) {
+void zinc_tint(zinc_image *image, float *colors) {
   uint32_t  p = 0;
   zinc_vec4 v;
 
