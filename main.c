@@ -109,7 +109,7 @@ zinc_image zinc_image_load(const char *path, int path_size) {
   
   i = zinc_image_load_wt(path, zinc_image_path_ok(path, path_size));
 
-  return i;
+ return i;
 }
 
 void zinc_image_write(zinc_image image, const char *name, int jpg_quality) {
@@ -166,34 +166,25 @@ const char *zinc_help_text =
 "  You neigther have to put <> brackets nor commas when <r,g,b> or <x,y> is specified. Just put values and spaces between the parameters.\n"
 "    Example: 0.43 0.654 0.12 (r,g,b example)\n"
 "             425 645   (x,y example).\n"
-"  Lastly we use factors instead of percentages. As it\'s more accurate. Factors range from 0.0 to 1.0\n\n"
+"  Lastly we use factors instead of percentages. As it\'s more accurate.\n"
+"    Example: for brightness, setting factor to 2.0 will double the brightness.\n"
+"             for tinting, changing the r value to 1.5 will increase half of the red value.\n\n"
 
 "Options:\n"
-"  --version                                    check the version of zinc.\n"
-"  --help                                       show this help message.\n"
-"  --gray                                       turn an image gray.\n"
-"  --gray-lumin                                 turn the image gray with rgb values that fits human eyes.\n"
-"  --gray-light                                 turn the image gray with min,max values.\n"
-"  --tint <r,g,b>                               tint the image with the <r,g,b> values.\n"
-"  --brightness <factor>                        change the brightness depending on the percentage.\n"
-"  --invert                                     invert the colors of the image.\n"
-"  --cropwctr <x1,y1> <x2,y2> <r,g,b>           crop the image without changing the resolution. x1,y1 = top left coordinate. x2,y2 = bottom right coordinate. r,g,b = color for the uncropped areas.\n"
-"  --cropctr <x1,y1> <x2,y2>                    crop the image and change the resolution. x1,y1 = top left coordinate. x2,y2 = bottom right coordinate.\n"
-"  more soon...\n\n"
-
-"Short forms:\n"
-"  --version        ->     -v\n"
-"  --help           ->     -h\n"
-"  --gray           ->     -g\n"
-"  --gray-lumin     ->     -gl\n"
-"  --gray-light     ->     -gli\n"
-"  --tint           ->     -ti\n"
-"  --brightness     ->     -br\n"
-"  --invert         ->     -in\n"
-"  --cropwctr       ->     -cwctr\n"
-"  --cropctr        ->     -cctr\n"
-"  more soon...\n";
+"  -v, --version                                    check the version of zinc.\n"
+"  -h, --help                                       show this help message.\n"
+"  -o, --output                                     choose a name for the output file.\n"
+"  -g, --gray                                       turn an image gray.\n"
+"  -gl, --gray-lumin                                turn the image gray with rgb values that fits human eyes.\n"
+"  -gli, --gray-light                               turn the image gray with min,max values.\n"
+"  -ti, --tint <r,g,b>                              tint the image with the <r,g,b> values.\n"
+"  -br, --brightness <factor>                       change the brightness depending on the percentage.\n"
+"  -in --invert                                     invert the colors of the image.\n"
+"  -cwctr, --cropwctr <x1,y1> <x2,y2> <r,g,b>       crop the image without changing the resolution. x1,y1 = top left coordinate. x2,y2 = bottom right coordinate. r,g,b = color for the uncropped areas.\n"
+"  -cctr, --cropctr <x1,y1> <x2,y2>                 crop the image and change the resolution. x1,y1 = top left coordinate. x2,y2 = bottom right coordinate.\n"
+"  more soon...\n\n";
 // -------------------------- zinc ui --------------------------  // END
+
 
 // -------------------------- zinc gray --------------------------  //
 void zinc_gray(zinc_image *image) {
@@ -231,7 +222,7 @@ void zinc_gray_lumin(zinc_image *image) {
     v[1] = y;
     v[2] = y;
 
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
+    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
     p += image->color_channels;
   }
 }
@@ -255,7 +246,7 @@ void zinc_gray_light(zinc_image *image) {
     v[1] = y;
     v[2] = y;
 
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
+    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
     p += image->color_channels;
   }
 }
@@ -390,21 +381,22 @@ int main(int argc, char *argv[]) {
     return 1;
   } 
   else {
-    zinc_image image;
-    char       image_path[300];
-    bool       image_path_ok = false;
+    zinc_image   image;
+    const char  *image_path;
+    char        *image_saved_path = "ZincImage.png";
+    bool         image_path_ok = false;
 
 
     for (int i = 1; i < argc; i++) {
       if (zinc_image_path_ok(argv[i], strlen(argv[i]))) {
         image_path_ok = true;
-        strcpy(image_path, argv[i]);
+        image_path = argv[i];
         image = zinc_image_load(argv[i], strlen(argv[i]));
         break;
       }
       else if (zinc_image_option_check("--help", "-h", argv[i])) {
         printf("%s", zinc_help_text);
-        return 1;
+        return 0;
       }
       else if (zinc_image_option_check("--version", "-v", argv[i])) {
         printf("Zinc Version: %s \n"
@@ -425,26 +417,26 @@ int main(int argc, char *argv[]) {
     for (int i = 1; i < argc; i++) {
       if (zinc_image_option_check("--gray", "-g", argv[i]))
         zinc_gray(&image);
-      if (zinc_image_option_check("--gray-lumin",  "-gl", argv[i]))
+      else if (zinc_image_option_check("--gray-lumin",  "-gl", argv[i]))
         zinc_gray_lumin(&image);
-      if (zinc_image_option_check("--gray-light",  "-gli", argv[i]))
+      else if (zinc_image_option_check("--gray-light",  "-gli", argv[i]))
         zinc_gray_light(&image);
 
-      if (zinc_image_option_check("--tint",  "-ti", argv[i])) {
+      else if (zinc_image_option_check("--tint",  "-ti", argv[i])) {
         float r = atof(argv[i + 1]);
         float g = atof(argv[i + 2]);
         float b = atof(argv[i + 3]);
 
         zinc_tint(&image, (zinc_vec3){r, g, b});
       }
-      if (zinc_image_option_check("--brightness",  "-br", argv[i])) {
+      else if (zinc_image_option_check("--brightness",  "-br", argv[i])) {
         float rgb = atof(argv[i + 1]);
         zinc_tint_equal(&image, rgb);
       }
-      if (zinc_image_option_check("--invert",  "-in", argv[i]))
+      else if (zinc_image_option_check("--invert",  "-in", argv[i]))
         zinc_tint_invert(&image);
 
-      if (zinc_image_option_check("--cropwctr",  "-cwctr", argv[i])) {
+      else if (zinc_image_option_check("--cropwctr",  "-cwctr", argv[i])) {
         float x1 = atof(argv[i + 1]);
         float y1 = atof(argv[i + 2]);
         float x2 = atof(argv[i + 3]);
@@ -459,7 +451,7 @@ int main(int argc, char *argv[]) {
                                 (zinc_vec2){x2, y2},
                                 (zinc_vec3){r, g, b});
       }
-      if (zinc_image_option_check("--cropctr",  "-cctr", argv[i])) {
+      else if (zinc_image_option_check("--cropctr",  "-cctr", argv[i])) {
         float x1 = atof(argv[i + 1]);
         float y1 = atof(argv[i + 2]);
         float x2 = atof(argv[i + 3]);
@@ -469,8 +461,20 @@ int main(int argc, char *argv[]) {
                                (zinc_vec2){x1, y1},
                                (zinc_vec2){x2, y2});
       }
+
+      else if (zinc_image_option_check("--output", "-o", argv[i])) {
+        image_saved_path = argv[i + 1];
+      }
     }
-    zinc_image_write(image, "ZincImage.jpg", 100);
+
+   for (int i = strlen(image_path) - 1; i >= 0; i--) {
+     if (image_path[i] == '/' || image_path[i] == '\\') {
+       strcpy(image_saved_path, image_path + i + 1);
+       break;
+     }
+   }
+
+    zinc_image_write(image, image_saved_path, 75);
     zinc_image_free(image);
   }
 
