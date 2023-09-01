@@ -21,7 +21,7 @@ More things will be added soon like: blur, sharpening, edge-detection etc. As it
 If you are using Windows you do have to use mingw32 or mingw64.
 Go to the project's root directory. And then run the command below in a terminal(cmd for Windows):
 ```bash
-gcc src/*.c -o zinc -lm
+gcc main.c -o zinc -lm -O3
 ```
 You will see a executable in the project's main directory.
 
