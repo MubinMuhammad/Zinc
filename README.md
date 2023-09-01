@@ -15,7 +15,7 @@ Well, Zinc is an image processor, written in C. It supports:
 - Cropping without changing the resolution
 - Cropping with changing the resolution
 
-More things will be added soon like: blur, sharpening, edge-detection etc. As it's under the MIT License, you can see the algorithms by yourself. It might be help full is just getting started with Image Processing.
+More things will be added soon like: blur, sharpening, edge-detection etc. As it's under the MIT License, you can see the algorithms by yourself. It might be helpful who is just getting started with Image Processing.
 
 ## Building
 If you are using Windows you do have to use mingw32 or mingw64.
