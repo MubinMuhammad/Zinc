@@ -32,7 +32,8 @@ typedef enum zinc_image_unit {
 
 typedef enum zinc_image_type {
   ZINC_JPG = 1,
-  ZINC_PNG, ZINC_BMP,
+  ZINC_PNG,
+  ZINC_BMP,
   ZINC_TGA
 } zinc_image_type;
 
@@ -106,16 +107,13 @@ const char *zinc_help_text =
 "  more soon...\n\n";
 
 void zinc_print_action(const char *heading) {
-  printf("\033[1;35m[action]\033[0m : applying %s...\n", heading);
+  printf("action: applying %s...\n", heading);
 }
 void zinc_print_success(const char *heading) {
-  printf("\033[1;32m[success]\033[0m: %s!\n", heading);
+  printf("success: %s!\n", heading);
 }
 void zinc_print_error(const char *heading) {
-  printf("\033[1;31m[error]\033[0m  : %s!\n", heading);
-}
-void zinc_print_warning(const char *heading) {
-  printf("\033[1;33m[warning]\033[0m: %s.\n", heading);
+  printf("error: %s!\n", heading);
 }
 // -------------------------- zinc ui --------------------------  // END
 
@@ -507,13 +505,9 @@ int main(int argc, char *argv[]) {
                                (zinc_vec2){x1, y1},
                                (zinc_vec2){x2, y2});
       }
-
       else if (zinc_image_option_check("--output", "-o", argv[i])) {
         strcpy(image_saved_path, argv[i + 1]);
         image_default_path = false;
-      }
-      else {
-        
       }
     }
 
