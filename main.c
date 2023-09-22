@@ -1,3 +1,4 @@
+// headers
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,27 +9,23 @@
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+// macros
+#define ZINC_PER_PIXEL_LOOP(w, h) for(int PIXEL_Y = 0; PIXEL_Y < h; PIXEL_Y++) for(int PIXEL_X = 0; PIXEL_X < w; PIXEL_X++)
+#define ZINC_IMAGE_FREE(image) free(image.data)
+#define ZINC_PRINT_ACTION(heading) printf("action: applying %s...\n", heading);
+#define ZINC_PRINT_SUCCESS(heading) printf("success: %s!\n", heading);
+#define ZINC_PRINT_ERROR(heading) printf("error: %s!\n", heading);
+#define MAX2(a, b) a > b ? a : b;
+#define MIN2(a, b) a < b ? a : b;
+#define MAX3(a, b, c) a > b && a > c ? a : b > a && b > c ? b : c;
+#define MIN3(a, b, c) a < b && a < c ? a : b < a && b < c ? b : c;
 
-// -------------------------- zinc types --------------------------  //
-#define ZINC_PER_PIXEL_LOOP(w, h) \
-  for (int PIXEL_Y = 0; PIXEL_Y < h; PIXEL_Y++) \
-    for (int PIXEL_X = 0; PIXEL_X < w; PIXEL_X++)
+// enums
+typedef enum zinc_set_get {
+  ZINC_SET,
+  ZINC_GET
 
-#define max2(a, b) a > b ? a : b;
-#define min2(a, b) a < b ? a : b;
-
-#define max3(a, b, c)  \
-  a > b && a > c ? a : \
-  b > a && b > c ? b : c;
-#define min3(a, b, c)  \
-  a < b && a < c ? a : \
-  b < a && b < c ? b : c;
-
-typedef enum zinc_image_unit {
-  ZINC_RGB_TO_NORMALIZED,
-  ZINC_NORMALIZED_TO_RGB
-
-} zinc_image_unit;
+} zinc_set_get;
 
 typedef enum zinc_image_type {
   ZINC_JPG = 1,
@@ -37,6 +34,7 @@ typedef enum zinc_image_type {
   ZINC_TGA
 } zinc_image_type;
 
+// structs
 typedef struct zinc_image {
   int width;
   int height;
@@ -47,36 +45,14 @@ typedef struct zinc_image {
 
 } zinc_image;
 
+// typedefs
 typedef float     zinc_vec2[2];
 typedef float     zinc_vec3[3];
 typedef float     zinc_vec4[4];
+typedef uint8_t   zinc_uvec4[4];
 
-// here 'unc' means 'unit change'
-void zinc_vec4_unc(zinc_image_unit u, zinc_image i, float *v, uint32_t p) {
-  if (u == ZINC_RGB_TO_NORMALIZED) {
-    v[0] = (float)*(i.data + 0 + p) / 255.0f;
-    v[1] = (float)*(i.data + 1 + p) / 255.0f;
-    v[2] = (float)*(i.data + 2 + p) / 255.0f;
-
-    if (i.color_channels == 4)
-      v[3] = (float)*(i.data + 3 + p) / 255.0f;
-  }
-  else if (u == ZINC_NORMALIZED_TO_RGB) {
-    *(i.data + 0 + p) = v[0] * 255;
-    *(i.data + 1 + p) = v[1] * 255;
-    *(i.data + 2 + p) = v[2] * 255;
-
-    if (i.color_channels == 4)
-      *(i.data + 3 + p) = v[3] * 255;
-  }
-}
-// -------------------------- zinc types --------------------------  // END
-
-
-// -------------------------- zinc ui --------------------------  //
-#define ZINC_VERSION "1.0.0 Code: 20230831" 
-
-const char *zinc_help_text = 
+// global variables
+const char *zinc_help_text =
 "Pattern:\n"
 "  for Linux & Mac:\n"
 "    ./zinc [Options] [Image]\n"
@@ -104,41 +80,37 @@ const char *zinc_help_text =
 "  -in --invert                                     invert the colors of the image.\n"
 "  -cwctr, --cropwctr <x1,y1> <x2,y2> <r,g,b>       crop the image without changing the resolution. x1,y1 = top left coordinate. x2,y2 = bottom right coordinate. r,g,b = color for the uncropped areas.\n"
 "  -cctr, --cropctr <x1,y1> <x2,y2>                 crop the image and change the resolution. x1,y1 = top left coordinate. x2,y2 = bottom right coordinate.\n"
+"  -th, --threshold <intensity>                     turns the image black and white depending on the threshold.\n"
 "  more soon...\n\n";
 
-void zinc_print_action(const char *heading) {
-  printf("action: applying %s...\n", heading);
-}
-void zinc_print_success(const char *heading) {
-  printf("success: %s!\n", heading);
-}
-void zinc_print_error(const char *heading) {
-  printf("error: %s!\n", heading);
-}
-// -------------------------- zinc ui --------------------------  // END
+// function declarations
+zinc_image zinc_image_load_wt(const char *path, zinc_image_type image_type); // here 'wt' stands for 'with type'
+zinc_image_type zinc_image_path_ok(const char *path, int path_size);
+zinc_image zinc_image_load(const char *path, int path_size);
+void zinc_image_write(zinc_image image, const char *name, int jpg_quality);
+int zinc_image_option_check(const char *s1, const char *s2, const char *c);
+void zinc_color_to_uvec4(zinc_image i, zinc_uvec4 v, uint32_t p, zinc_set_get sg);
+void zinc_gray(zinc_image *image);
+void zinc_gray_lumin(zinc_image *image);
+void zinc_gray_light(zinc_image *image);
+void zinc_threshold(zinc_image *image, uint8_t intensity);
+void zinc_tint(zinc_image *image, zinc_vec3 colors);
+void zinc_tint_equal(zinc_image *image, float factor);
+void zinc_tint_invert(zinc_image *image);
+void zinc_transform_cropwctr(zinc_image *image, float *top_left, float *bottom_right, float *color);
+void zinc_transform_cropctr(zinc_image *image, float *top_left, float *bottom_right); // here 'ctr' means 'changing the resolution'
+void zinc_transform_rotate(zinc_image *image, int rotation_value); // here 'wctr' means 'without changing the resolution'
 
-
-
-
-// -------------------------- zinc rw --------------------------  //
-#define zinc_image_free(image) free(image.data)
-
-// 'wt' stands for 'with type'
+// function implementation
 zinc_image zinc_image_load_wt(const char *path, zinc_image_type image_type) {
   zinc_image i = {
     .type = image_type
   };
-
-  i.data = stbi_load(path, 
-                     &i.width, &i.height,
-                     &i.color_channels,
-                     0);
-
+  i.data = stbi_load(path, &i.width, &i.height, &i.color_channels, 0);
   if (!i.data) {
-    zinc_print_error("path is invalid or image is corrupted");
+    ZINC_PRINT_ERROR("path is invalid or image is corrupted");
     exit(1);
   }
-
   return i;
 }
 
@@ -183,7 +155,7 @@ void zinc_image_write(zinc_image image, const char *name, int jpg_quality) {
       stbi_write_tga(name,
                      image.width, image.height,
                      image.color_channels, image.data); default:
-      zinc_print_error("failed to write image");
+      ZINC_PRINT_ERROR("failed to write image");
       exit(1);
   }
 }
@@ -194,39 +166,56 @@ int zinc_image_option_check(const char *s1, const char *s2, const char *c) {
   strcmp(s2, c) == 0 
   ? 1 : 0;
 }
-// -------------------------- zinc rw --------------------------  // END
 
+void zinc_color_to_uvec4(zinc_image i, zinc_uvec4 v, uint32_t p, zinc_set_get sg) {
+  if (sg == ZINC_GET) {
+    v[0] = *(i.data + 0 + p);
+    v[1] = *(i.data + 1 + p);
+    v[2] = *(i.data + 2 + p);
 
-// -------------------------- zinc gray --------------------------  //
+    if (i.color_channels == 4)
+      v[3] = *(i.data + 3 + p);
+  }
+  else if (sg == ZINC_SET) {
+    *(i.data + 0 + p) = v[0];
+    *(i.data + 1 + p) = v[1];
+    *(i.data + 2 + p) = v[2];
+
+    if (i.color_channels == 4)
+      *(i.data + 3 + p) = v[3];
+  } 
+}
+
 void zinc_gray(zinc_image *image) {
   uint32_t   p = 0;
-  float      y;
-  zinc_vec4  v;
+  uint8_t    y;
+  zinc_uvec4 v;
 
-  zinc_print_action("grayscale avarage");
+  ZINC_PRINT_ACTION("grayscale avarage");
 
   ZINC_PER_PIXEL_LOOP(image->width, image->height) {
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
+    zinc_color_to_uvec4(*image, v, p, ZINC_GET);
     y = (v[0] + v[1] + v[2]) / 3;
 
     v[0] = y;
     v[1] = y;
     v[2] = y;
  
-    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
-    p += image->color_channels;
+    zinc_color_to_uvec4(*image, v, p, ZINC_SET);
+    p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
   }
 }
 
-void zinc_gray_lumin(zinc_image *image) {
-  uint32_t  p = 0;
-  float     y;
-  zinc_vec4 v;
 
-  zinc_print_action("grayscale luminosity");
+void zinc_gray_lumin(zinc_image *image) {
+  uint32_t   p = 0;
+  uint8_t    y;
+  zinc_uvec4 v;
+
+  ZINC_PRINT_ACTION("grayscale luminosity");
 
   ZINC_PER_PIXEL_LOOP(image->width, image->height) {
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
+    zinc_color_to_uvec4(*image, v, p, ZINC_GET);
 
     y = (v[0] * 0.2126 + 
          v[1] * 0.7152 + 
@@ -236,25 +225,23 @@ void zinc_gray_lumin(zinc_image *image) {
     v[1] = y;
     v[2] = y;
 
-    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
-    p += image->color_channels;
+    zinc_color_to_uvec4(*image, v, p, ZINC_SET);
+    p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
   }
 }
 
 void zinc_gray_light(zinc_image *image) {
-  uint32_t  p = 0;
-  float     y;
-  float     mx;
-  float     mn;
-  zinc_vec4 v;
+  uint32_t    p = 0;
+  uint8_t     y, mx, mn;
+  zinc_uvec4  v;
 
-  zinc_print_action("grayscale lightness");
+  ZINC_PRINT_ACTION("grayscale lightness");
   
   ZINC_PER_PIXEL_LOOP(image->width, image->height) {
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
+    zinc_color_to_uvec4(*image, v, p, ZINC_GET);
     
-    mx = max3(v[0], v[1], v[2]);
-    mn = min3(v[0], v[1], v[2]);
+    mx = MAX3(v[0], v[1], v[2]);
+    mn = MIN3(v[0], v[1], v[2]);
 
     y = (mx + mn) / 3;
 
@@ -262,106 +249,109 @@ void zinc_gray_light(zinc_image *image) {
     v[1] = y;
     v[2] = y;
 
-    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
-    p += image->color_channels;
+    zinc_color_to_uvec4(*image, v, p, ZINC_SET);
+    p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
   }
 }
-// -------------------------- zinc gray --------------------------  // END
 
+void zinc_threshold(zinc_image *image, uint8_t intensity) {
+  zinc_gray(image);
 
-// -------------------------- zinc tint --------------------------  //
-void zinc_tint(zinc_image *image, float *colors) {
-  uint32_t  p = 0;
-  zinc_vec4 v;
-
-  zinc_print_action("tint");
+  uint32_t   p = 0;
+  zinc_uvec4 v;
 
   ZINC_PER_PIXEL_LOOP(image->width, image->height) {
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
+    zinc_color_to_uvec4(*image, v, p, ZINC_GET);
+    // printf("%hhu %hhu %hhu\n", *(image->data + 0 + p), *(image->data + 1 + p), *(image->data + 2 + p));
 
-    v[0] *= colors[0];
-    v[1] *= colors[1];
-    v[2] *= colors[2];
+    if (v[0] > intensity) {
+      v[0] = 255;
+      v[1] = 255;
+      v[2] = 255;
+    }
+    else {
+      v[0] = 0;
+      v[1] = 0;
+      v[2] = 0;
+    }
 
-    v[0] > 1.0f ? v[0] = 1.0f : 0;
-    v[1] > 1.0f ? v[1] = 1.0f : 0;
-    v[2] > 1.0f ? v[2] = 1.0f : 0;
+    zinc_color_to_uvec4(*image, v, p, ZINC_SET);
+    p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
+  }
+}
 
-    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
-    p += image->color_channels;
+void zinc_tint(zinc_image *image, zinc_vec3 colors) {
+  uint32_t   p = 0, c;
+  zinc_uvec4 v;
 
+  ZINC_PRINT_ACTION("tint");
+
+  ZINC_PER_PIXEL_LOOP(image->width, image->height) {
+    zinc_color_to_uvec4(*image, v, p, ZINC_GET);
+
+    // if c is set after v[0] *= colors[0] then c might be 0
+    c = (uint32_t)v[0] * colors[0];
+    c > 255 ? v[0] = 255 : (v[0] *= colors[0]);
+
+    // if c is set after v[1] *= colors[1] then c might be 0
+    c = (uint32_t)v[1] * colors[1];
+    c > 255 ? v[1] = 255 : (v[1] *= colors[1]);
+
+    // if c is set after v[2] *= colors[2] then c might be 0
+    c = (uint32_t)v[2] * colors[2];
+    c > 255 ? v[2] = 255 : (v[2] *= colors[2]);
+
+    zinc_color_to_uvec4(*image, v, p, ZINC_SET);
+    p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
   }
 }
 
 void zinc_tint_equal(zinc_image *image, float factor) {
-  uint32_t  p = 0;
-  zinc_vec4 v;
-
-  zinc_print_action("brightness");
-
-  ZINC_PER_PIXEL_LOOP(image->width, image->height) {
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
-
-    v[0] *= factor;
-    v[1] *= factor;
-    v[2] *= factor;
-
-    v[0] > 1.0f ? v[0] = 1.0f : 0;
-    v[1] > 1.0f ? v[1] = 1.0f : 0;
-    v[2] > 1.0f ? v[2] = 1.0f : 0;
-
-    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
-    p += image->color_channels;
-  }
+  zinc_tint(image, (zinc_vec3){factor, factor, factor});
 }
 
 void zinc_tint_invert(zinc_image *image) {
-  uint32_t  p = 0;
-  zinc_vec4 v;
+  uint32_t   p = 0;
+  zinc_uvec4 v;
 
-  zinc_print_action("invert");
+  ZINC_PRINT_ACTION("invert");
 
   ZINC_PER_PIXEL_LOOP(image->width, image->height) {
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
+    zinc_color_to_uvec4(*image, v, p, ZINC_GET);
 
-    v[0] = 1.0f - v[0];
-    v[1] = 1.0f - v[1];
-    v[2] = 1.0f - v[2];
+    v[0] = 255 - v[0];
+    v[1] = 255 - v[1];
+    v[2] = 255 - v[2];
 
-    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
-    p += image->color_channels;
+    zinc_color_to_uvec4(*image, v, p, ZINC_SET);
+    p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
   }
 }
-// -------------------------- zinc tint --------------------------  // END
 
-
-// -------------------------- zinc transform --------------------------  //
-// here 'wctr' means 'without changing the resolution'
 void zinc_transform_cropwctr(zinc_image *image, float *top_left, float *bottom_right, float *color) {
-  uint32_t  p = 0;
-  zinc_vec4 v;
+  uint32_t   p = 0;
+  zinc_uvec4 v;
 
-  zinc_print_action("cropping WCTR");
+  ZINC_PRINT_ACTION("cropping WCTR");
 
   ZINC_PER_PIXEL_LOOP(image->width, image->height) {
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
+    zinc_color_to_uvec4(*image, v, p, ZINC_GET);
 
     if (!(PIXEL_X > top_left[0] && PIXEL_X < bottom_right[0] &&
           PIXEL_Y > top_left[1] && PIXEL_Y < bottom_right[1])) {
-      v[0] = color[0];
-      v[1] = color[1];
-      v[2] = color[2];
+      v[0] = (color[0] * 255);
+      v[1] = (color[1] * 255);
+      v[2] = (color[2] * 255);
     } 
 
-    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
-    p += image->color_channels;
+    zinc_color_to_uvec4(*image, v, p, ZINC_SET);
+    p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
   }
 }
 
-// here 'ctr' means 'changing the resolution'
 void zinc_transform_cropctr(zinc_image *image, float *top_left, float *bottom_right) {
-  uint32_t  p = 0;
-  zinc_vec4 v;
+  uint32_t   p = 0;
+  zinc_uvec4 v;
   
   zinc_image r = {
     .width = abs((int)(bottom_right[0] - top_left[0])),
@@ -376,10 +366,10 @@ void zinc_transform_cropctr(zinc_image *image, float *top_left, float *bottom_ri
 
   uint32_t rp = 0;
 
-  zinc_print_action("cropping CTR");
+  ZINC_PRINT_ACTION("cropping CTR");
   
   ZINC_PER_PIXEL_LOOP(image->width, image->height) {
-    zinc_vec4_unc(ZINC_RGB_TO_NORMALIZED, *image, v, p);
+    zinc_color_to_uvec4(*image, v, p, ZINC_GET);
 
     if (PIXEL_X > top_left[0] && PIXEL_X < bottom_right[0] &&
         PIXEL_Y > top_left[1] && PIXEL_Y < bottom_right[1]) {
@@ -390,33 +380,52 @@ void zinc_transform_cropctr(zinc_image *image, float *top_left, float *bottom_ri
       rp += r.color_channels;
     } 
 
-    zinc_vec4_unc(ZINC_NORMALIZED_TO_RGB, *image, v, p);
-    p += image->color_channels;
+    zinc_color_to_uvec4(*image, v, p, ZINC_SET);
+    p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
   }
 
   *image = r;
 }
 
-void zinc_transform_rotate(zinc_image *image, const char *side) {
-  int oriantation = strcmp(side, "right") == 0 ? 1 :
-                    strcmp(side, "left")  == 0 ? 2 : 3;
+void zinc_transform_rotate(zinc_image *image, int rotation_value) {
+  uint32_t   p = 0;
+  zinc_uvec4 v;
 
   zinc_image r = {
-    .width = oriantation == 1 || oriantation == 2 ? image->height : image->width,
-    .height = oriantation == 1 || oriantation == 2 ? image->width : image->height,
+    .width = image->height,
+    .height = image->width,
     .color_channels = image->color_channels,
     .type = image->type,
     .data = malloc(image->width * image->height * image->color_channels)
   };
-  
-  int PIXEL_X = oriantation == 1 ? 0 : image->width - 1;
-  int PIXEL_Y = oriantation == 1 ? image->height - 1 : 0;
 
+  printf("width: %d, height: %d", image->width, image->height);
 
+  int rxy = 0;
+
+  switch (rotation_value) {
+    case 0:
+    for (int PIXEL_X = 0; PIXEL_X < image->width; PIXEL_X++) {
+      for (int PIXEL_Y = image->height - 1; PIXEL_Y >= 0; PIXEL_Y--) {
+        zinc_color_to_uvec4(*image, v, p, ZINC_GET);
+
+        *(r.data + 0 + rxy) = v[0];
+        *(r.data + 1 + rxy) = v[1];
+        *(r.data + 2 + rxy) = v[2];
+
+        if (image->color_channels == 4)
+          *(r.data + 3 + rxy) = v[3];
+
+        rxy += image->color_channels;
+        p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
+      }
+    }
+    *image = r;
+    break;
+  };
 }
-// -------------------------- zinc transform --------------------------  // END
 
-
+// main function
 int main(int argc, char *argv[]) {
   if (argc == 1) {
     printf("%s", zinc_help_text);
@@ -441,20 +450,15 @@ int main(int argc, char *argv[]) {
         printf("%s", zinc_help_text);
         return 0;
       }
-      else if (zinc_image_option_check("--version", "-v", argv[i])) {
-        printf("Zinc Version: %s \n"
-               "This is a free software under the MIT License.\n", ZINC_VERSION);
-        return 0;
-      }
     }
 
 
     if (!image_path_ok) {
-      zinc_print_error("no image provided");
+      ZINC_PRINT_ERROR("no image provided");
       return 1;
     }
     else {
-      zinc_print_success("image is successfully loaded");
+      ZINC_PRINT_SUCCESS("image is successfully loaded");
     }
 
 
@@ -505,6 +509,17 @@ int main(int argc, char *argv[]) {
                                (zinc_vec2){x1, y1},
                                (zinc_vec2){x2, y2});
       }
+      else if (zinc_image_option_check("--threshold", "-th", argv[i])) {
+        uint8_t x = atoi(argv[i + 1]);
+        zinc_threshold(&image, x);
+      }
+      else if (zinc_image_option_check("--rotate", "-rt", argv[i])) {
+        int x;
+        if (strcmp(argv[i + 1], "right"))
+          x = 0;
+        
+        zinc_transform_rotate(&image, x);
+      }
       else if (zinc_image_option_check("--output", "-o", argv[i])) {
         strcpy(image_saved_path, argv[i + 1]);
         image_default_path = false;
@@ -543,8 +558,8 @@ int main(int argc, char *argv[]) {
 
 
     zinc_image_write(image, image_saved_path, 75);
-    zinc_print_success("done");
-    zinc_image_free(image);
+    ZINC_PRINT_SUCCESS("done");
+    ZINC_IMAGE_FREE(image);
   }
 
   return 0;
