@@ -434,7 +434,7 @@ int main(int argc, char *argv[]) {
   else {
     zinc_image   image;
     const char  *image_path;
-    char         image_saved_path[100];
+    char         image_saved_path[100] = {0};
     bool         image_path_ok = false;
     bool         image_default_path = true;
 
