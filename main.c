@@ -12,13 +12,13 @@
 // macros
 #define ZINC_PER_PIXEL_LOOP(w, h) for(int PIXEL_Y = 0; PIXEL_Y < h; PIXEL_Y++) for(int PIXEL_X = 0; PIXEL_X < w; PIXEL_X++)
 #define ZINC_IMAGE_FREE(image) free(image.data)
-#define ZINC_PRINT_ACTION(heading) printf("action: applying %s...\n", heading);
-#define ZINC_PRINT_SUCCESS(heading) printf("success: %s!\n", heading);
-#define ZINC_PRINT_ERROR(heading) printf("error: %s!\n", heading);
-#define MAX2(a, b) a > b ? a : b;
-#define MIN2(a, b) a < b ? a : b;
-#define MAX3(a, b, c) a > b && a > c ? a : b > a && b > c ? b : c;
-#define MIN3(a, b, c) a < b && a < c ? a : b < a && b < c ? b : c;
+#define ZINC_PRINT_ACTION(heading) printf("action: applying %s...\n", heading)
+#define ZINC_PRINT_SUCCESS(heading) printf("success: %s!\n", heading)
+#define ZINC_PRINT_ERROR(heading) printf("error: %s!\n", heading)
+#define MAX2(a, b) a > b ? a : b
+#define MIN2(a, b) a < b ? a : b
+#define MAX3(a, b, c) a > b && a > c ? a : b > a && b > c ? b : c
+#define MIN3(a, b, c) a < b && a < c ? a : b < a && b < c ? b : c
 
 // enums
 typedef enum zinc_set_get {
