@@ -99,7 +99,6 @@ void zinc_tint_equal(zinc_image *image, float factor);
 void zinc_tint_invert(zinc_image *image);
 void zinc_transform_cropwctr(zinc_image *image, float *top_left, float *bottom_right, float *color);
 void zinc_transform_cropctr(zinc_image *image, float *top_left, float *bottom_right); // here 'ctr' means 'changing the resolution'
-void zinc_transform_rotate(zinc_image *image, int rotation_value); // here 'wctr' means 'without changing the resolution'
 
 // function implementation
 zinc_image zinc_image_load_wt(const char *path, zinc_image_type image_type) {
@@ -387,44 +386,6 @@ void zinc_transform_cropctr(zinc_image *image, float *top_left, float *bottom_ri
   *image = r;
 }
 
-void zinc_transform_rotate(zinc_image *image, int rotation_value) {
-  uint32_t   p = 0;
-  zinc_uvec4 v;
-
-  zinc_image r = {
-    .width = image->height,
-    .height = image->width,
-    .color_channels = image->color_channels,
-    .type = image->type,
-    .data = malloc(image->width * image->height * image->color_channels)
-  };
-
-  printf("width: %d, height: %d", image->width, image->height);
-
-  int rxy = 0;
-
-  switch (rotation_value) {
-    case 0:
-    for (int PIXEL_X = 0; PIXEL_X < image->width; PIXEL_X++) {
-      for (int PIXEL_Y = image->height - 1; PIXEL_Y >= 0; PIXEL_Y--) {
-        zinc_color_to_uvec4(*image, v, p, ZINC_GET);
-
-        *(r.data + 0 + rxy) = v[0];
-        *(r.data + 1 + rxy) = v[1];
-        *(r.data + 2 + rxy) = v[2];
-
-        if (image->color_channels == 4)
-          *(r.data + 3 + rxy) = v[3];
-
-        rxy += image->color_channels;
-        p = (image->width * PIXEL_Y + PIXEL_X) * image->color_channels;
-      }
-    }
-    *image = r;
-    break;
-  };
-}
-
 // main function
 int main(int argc, char *argv[]) {
   if (argc == 1) {
@@ -512,13 +473,6 @@ int main(int argc, char *argv[]) {
       else if (zinc_image_option_check("--threshold", "-th", argv[i])) {
         uint8_t x = atoi(argv[i + 1]);
         zinc_threshold(&image, x);
-      }
-      else if (zinc_image_option_check("--rotate", "-rt", argv[i])) {
-        int x;
-        if (strcmp(argv[i + 1], "right"))
-          x = 0;
-        
-        zinc_transform_rotate(&image, x);
       }
       else if (zinc_image_option_check("--output", "-o", argv[i])) {
         strcpy(image_saved_path, argv[i + 1]);
